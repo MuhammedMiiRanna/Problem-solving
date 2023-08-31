@@ -1,5 +1,23 @@
 
 
+
+samples = (
+    (1, 0),
+    (2, 1),
+    (3, 1),
+    (500, 4),
+    (5000, 5),
+    (10000000000, 10)
+)
+
+for index, (nbr, result) in enumerate(samples):
+    factor_result = factors(nbr)
+    print('>>> id_N-{:<2}: {:>9}{:<5}{:>22}{:<3}{:>8}{:<3}{:>17}{}'.format(index+1, ' number: ', nbr, ' - expected result: ', result,
+          '- Result: ', factor_result, '  | This result is: ',  bool(result == factor_result)), end='\n\n')
+
+
+##########################################################
+
 def is_prime(n):
     if n <= 1:
         return False
@@ -33,23 +51,6 @@ def factors(nbr):
         factors.append(p)
     print(factors, div, end='\n\n')
     return len(factors)
-
-
-samples = (
-    (1, 0),
-    (2, 1),
-    (3, 1),
-    (500, 4),
-    (5000, 5),
-    (10000000000, 10)
-)
-
-for index, (nbr, result) in enumerate(samples):
-    factor_result = factors(nbr)
-    print('>>> id_N-{:<2}: {:>9}{:<5}{:>22}{:<3}{:>8}{:<3}{:>17}{}'.format(index+1, ' number: ', nbr, ' - expected result: ', result,
-          '- Result: ', factor_result, '  | This result is: ',  bool(result == factor_result)), end='\n\n')
-
-
 # ################################
 # Refrences:
 # 1. https://www.calculatorsoup.com/calculators/math/prime-factors.php
