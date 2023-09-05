@@ -1,7 +1,7 @@
 import json
-from re import split
-from math import ceil
+from re import split, findall
 
+# https://github.com/MuhammedMiiRanna/Problem-solving/tree/main/CodeWars/Morse%20code
 
 # That said, your task is to implement two functions:
 
@@ -30,37 +30,63 @@ MORSE_CODE = json.load(
 
 
 def rate(bits):
-    n1 = bits.index("0") if "0" in bits else len(bits)
-    n0 = (
-        len(
-            bits[bits.index("0") : bits.index("0") + bits[bits.index("0") :].index("1")]
-        )
-        if "0" in bits
-        else 0
-    )
+    # Cheking for the min length of seq of each char ("1", "0")
+    ones = len(min(filter(lambda x: bool(x), bits.split("0"))))
+    zeroes = len(min(filter(lambda x: bool(x), bits.split("1")))) if "0" in bits else 0
 
-    if n1 % 2 == 0:
+    # bunch of test, made them after analysing
+    # the values and outliers for so long
+    if zeroes == ones:
+        rate = ones
+    elif ones % 2 == 0:
         rate = 2
-    elif n0 == n1:
-        rate = n1
-    elif n0 == 1:
+    elif zeroes == 1:
         rate = 1
-    # elif n1 in (1, 3):
-    #     rate = 3
     else:
-        rate = n1
+        rate = ones
 
     return rate
 
 
 def decode_bits(bits):
     # ToDo: Accept 0's and 1's, return dots, dashes and spaces
-    # bits = bits[bits.index('1'):len(bits)-bits[::-1].index('1')] # remove the zeros from the beginning and the end of bits
     bits = bits.strip("0")  # remove the zeros from the beginning and the end of bits
-    rate_val = rate(bits)
-    rate_val = 6
+    rate_val = rate(bits)  # calculating the rate
 
+    # # bits_list # #
+    # bits_list = list()  # list that contains the sequences
+    # ones, zeroes = "", ""  # var to collect ones and zeroes
+    # # Here we will iterate over the string of bits
+    # # to seperate between "0" and "1"
+    # for bit in bits:
+    #     if ones == "1":
+    #         ones += "1"  # add "1" to the ones seq
+    #         if zeroes:  # if there is zeroes
+    #             bits_list.append(zeroes)
+    #             zeroes = ""
+    #     else:
+    #         zeroes += "0"
+    #         if ones:
+    #             ones.append(ones)
+    #             ones = ""
+
+    # # adding last set of bits
+    # if ones:
+    #     bits_list.append(ones)
+    # if zeroes:
+    #     bits_list.append(zeroes)
+    # # bits_list # #
+    # we can do this, inside the "bits_list" comment,
+
+    # or this 2 lines using 'findall' functiong from regex lib (took me a while to finds that xD):
+    bits_list = findall(
+        r"0+|1+", bits
+    )  # separating the sequence into list of ones and zeroes
+    # PS: we can merge the rate func with this line, to work with "bits_list", somehow
+
+    # getting the morse message
     morse_msg = ""
+    # dict with (binary_code: morse_code) values pair
     binary_to_morse = {
         "1": ".",
         "111": "-",
@@ -68,41 +94,14 @@ def decode_bits(bits):
         "000": " ",
         "0000000": "   ",
     }
-
-    bits_list = list()
-    bit1, bit0 = "", ""
-
-    for bit in bits:
-        if bit == "1":
-            bit1 += "1"
-            if bit0:
-                bits_list.append(bit0)
-                bit0 = ""
-        else:
-            bit0 += "0"
-            if bit1:
-                bits_list.append(bit1)
-                bit1 = ""
-
-    # adding last set of bits
-    if bit1:
-        bits_list.append(bit1)
-    if bit0:
-        bits_list.append(bit0)
-
     for bit in bits_list:
-        temp = bit[0] * (len(bit) // rate_val)
-
-        # if len(temp) % 7 == 0:
-        #     temp = bit[0] * 7
-        # if len(temp) % 3 == 0:
-        #     temp = bit[0] * 3
-        morse_msg += binary_to_morse[temp]
+        # bit[0]: gives u '1' or '0'
+        # (len(bit) // rate_val):  dividing the length of the seq by the rate_value
+        # so we're removing the rate effect, by dividing
+        # the length of the seq by the rate_value
+        morse_msg += binary_to_morse[bit[0] * (len(bit) // rate_val)]
 
     return morse_msg
-    # return (
-    #     bits.replace("111", "-").replace("000", " ").replace("1", ".").replace("0", "").replace("0000000", "   ")
-    # )
 
 
 def decode_morse(morseCode):
@@ -120,21 +119,36 @@ def decode_morse(morseCode):
     return msg
 
 
+# some outlier examples:
 # 111 => E
+# 1111111 => E
 # 1110111 => M
 # 111000111 => I
-# 1111111 => E
 # 111110000011111 => I
 # decoded_bits = decode_bits(bits)
 # Example from description:
 bits = "1100110011001100000011000000111111001100111111001111110000000000000011001111110011111100111111000000110011001111110000001111110011001100000011"
 bits = "111111000000111111000000111111000000111111000000000000000000111111000000000000000000111111111111111111000000111111000000111111111111111111000000111111111111111111000000000000000000000000000000000000000000111111000000111111111111111111000000111111111111111111000000111111111111111111000000000000000000111111000000111111000000111111111111111111000000000000000000111111111111111111000000111111000000111111000000000000000000111111"
-bits = "1110001010101000100000001110111010111000101011100010100011101011101000111010111000000011101010100010111010001110111011100010111011100011101000000010101110100011101110111000111010101110000000101110111011100010101110001110111000101110111010001010100000001110111011100010101011100010001011101000000011100010101010001000000010111010100010111000111011101010001110101110111000000011101010001110111011100011101110100010111010111010111"
 msg = "HEY JUDE"
+bits = "1110001010101000100000001110111010111000101011100010100011101011101000111010111000000011101010100010111010001110111011100010111011100011101000000010101110100011101110111000111010101110000000101110111011100010101110001110111000101110111010001010100000001110111011100010101011100010001011101000000011100010101010001000000010111010100010111000111011101010001110101110111000000011101010001110111011100011101110100010111010111010111"
+msg = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG."
 
-
-# TODO: check how to check for the len of every element
+# Her's some (value, rate) key pairs to test the rate with
+samples = {
+    "111111000000111111000000111111000000111111000000000000000000111111000000000000000000111111111111111111000000111111000000111111111111111111000000111111111111111111000000000000000000000000000000000000000000111111000000111111111111111111000000111111111111111111000000111111111111111111000000000000000000111111000000111111000000111111111111111111000000000000000000111111111111111111000000111111000000111111000000000000000000111111": 6,
+    "1100110011001100000011000000111111001100111111001111110000000000000011001111110011111100111111000000110011001111110000001111110011001100000011": 2,
+    "1110001010101000100000001110111010111000101011100010100011101011101000111010111000000011101010100010111010001110111011100010111011100011101000000010101110100011101110111000111010101110000000101110111011100010101110001110111000101110111010001010100000001110111011100010101011100010001011101000000011100010101010001000000010111010100010111000111011101010001110101110111000000011101010001110111011100011101110100010111010111010111": 1,
+    "111000111": 3,
+    "111": 3,
+    "1110111": 1,
+    "111110000011111": 5,
+    "1111111": 7,
+    "10001": 1,
+}
 
 decoded_bits = decode_bits(bits)
 decoded_msg = decode_morse(decoded_bits)
-print(decoded_msg)
+print(">> Decoded msg:", decoded_msg)
+print(">> The message:", msg)
+print(">>", decoded_msg == msg)
+
