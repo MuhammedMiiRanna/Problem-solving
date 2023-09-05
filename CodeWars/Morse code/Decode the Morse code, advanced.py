@@ -29,36 +29,21 @@ MORSE_CODE = json.load(
 )  # read the morse_code json file
 
 
-def rate(bits):
-    # Cheking for the min length of seq of each char ("1", "0")
-    ones = len(min(filter(lambda x: bool(x), bits.split("0"))))
-    zeroes = len(min(filter(lambda x: bool(x), bits.split("1")))) if "0" in bits else 0
-
-    # bunch of test, made them after analysing
-    # the values and outliers for so long
-    if zeroes == ones:
-        rate = ones
-    elif ones % 2 == 0:
-        rate = 2
-    elif zeroes == 1:
-        rate = 1
-    else:
-        rate = ones
-
-    return rate
-
-
 def decode_bits(bits):
     # ToDo: Accept 0's and 1's, return dots, dashes and spaces
     bits = bits.strip("0")  # remove the zeros from the beginning and the end of bits
-    rate_val = rate(bits)  # calculating the rate
+    # calculating the rate
+    ones = len(min(filter(lambda x: bool(x), bits.split("0"))))
+    zeroes = len(min(filter(lambda x: bool(x), bits.split("1")))) if "0" in bits else 99
+    rate_val = min(ones, zeroes)
     return (
-        bits.replace("111"*rate_val, "-")
-        .replace("1"*rate_val, ".")
-        .replace("0000000"*rate_val, "   ")
-        .replace("000"*rate_val, " ")
-        .replace("0"*rate_val, "")
+        bits.replace("111" * rate_val, "-")
+        .replace("1" * rate_val, ".")
+        .replace("0000000" * rate_val, "   ")
+        .replace("000" * rate_val, " ")
+        .replace("0" * rate_val, "")
     )
+
 
 def decode_morse(morseCode):
     # ToDo: Accept dots, dashes and spaces, return human-readable message
