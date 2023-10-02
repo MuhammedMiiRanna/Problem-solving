@@ -18,7 +18,7 @@ n = 261235
 n = 209917
 
 res = smallest(n)
-
+print(res)
 # import signal
 # TIMEOUT = 5  # number of seconds your want for timeout
 
